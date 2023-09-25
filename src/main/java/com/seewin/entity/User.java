@@ -16,6 +16,7 @@ public class User {
     private String username;
     private String fullname;
     private Integer age;
+
     private String password;
     private String tel;
     private String email;
@@ -26,9 +27,9 @@ public class User {
     private Integer online;
 
 //    逻辑删除:为数据设置是否可用状态字段，删除时设置状态字段为不可用状态，数据保留在数据库中，执行的是update操作
-    @TableLogic(value="0",delval="1")
+//    @TableLogic(value="0",delval="1")
 //value为正常数据的值，delval为删除数据的值
-    private Integer deleted;
+//    private Integer deleted;
 
 //    乐观锁
     @Version

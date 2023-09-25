@@ -1,8 +1,6 @@
 package com.seewin.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 
 @Configuration
 //public class WebSocketConfig implements WebSocketConfigurer {
@@ -18,8 +16,8 @@ public class WebSocketConfig {
 //    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
 //        registry.addHandler(myWebSocketHandler,"/ws").setAllowedOrigins("*");
 //    }
-    @Bean
-    public ServerEndpointExporter serverEndpointExporter() {
-        return new ServerEndpointExporter();
-    }
+//    @Bean
+//    public ServerEndpointExporter serverEndpointExporter() {
+//        return new ServerEndpointExporter();
+//    }
 }

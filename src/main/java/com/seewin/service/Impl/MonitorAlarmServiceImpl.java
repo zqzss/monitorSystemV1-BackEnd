@@ -10,6 +10,7 @@ import com.seewin.mapper.MonitorAlarmMapper;
 import com.seewin.mapper.MonitorItemMapper;
 import com.seewin.mapper.MonitorTypeMapper;
 import com.seewin.service.MonitorAlarmService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class MonitorAlarmServiceImpl implements MonitorAlarmService {
     @Autowired
@@ -191,7 +193,8 @@ public class MonitorAlarmServiceImpl implements MonitorAlarmService {
 
         Integer count = monitorAlarmMapper.selectMonitorAlarmOfCount(host_ids, queryStartDateTime, queryEndDateTime,startTime,endTime,startDate,endDate);
         resultData.put("total", count);
-
+        log.info("告警记录分页查询条件: 【"+ "hostName: "+hostName+", dateRange" + dateRange +", timeRange: "+timeRange+", currentPage: "+ currentPage+", pageSize: "+ pageSize+"】");
+        log.info("告警记录分页查询结果: "+resultData);
         Result result = new Result<>(200, resultData, "查询成功！");
         return result;
     }

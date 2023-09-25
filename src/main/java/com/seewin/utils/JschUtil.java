@@ -10,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 
 @Slf4j
 public class JschUtil {
@@ -27,18 +28,20 @@ public class JschUtil {
         this.port = port;
     }
 
-    public void testConnect() throws Exception{
+    public void testConnect() throws Exception {
         JSch jsch = new JSch();
         session = jsch.getSession(username, host, port);
         session.setPassword(password);
 
         // 跳过公钥检查
         session.setConfig("StrictHostKeyChecking", "no");
-
+//        设置超时时间
+        session.setTimeout(3000);
         // 开启 SSH 连接
         session.connect();
     }
-    public void connectClose(){
+
+    public void connectClose() {
         // 关闭连接
 //        channel.disconnect();
         session.disconnect();
@@ -65,12 +68,13 @@ public class JschUtil {
         }
         String unit = result.replaceAll("[^a-zA-Z]", "");
         Double remian = Double.valueOf(result.replaceAll("[a-zA-Z]", ""));
+        DecimalFormat format = new DecimalFormat("#.00");
         if (unit.equals("M")) {
-            result = String.valueOf(remian / 1000);
+            result = format.format(remian / 1000);
         } else if (unit.equals("T")) {
-            result = String.valueOf(remian * 1000);
+            result = format.format(remian * 1000);
         } else if (unit.equals("G")) {
-            result = String.valueOf(remian);
+            result = format.format(remian);
         }
 
         return result;
@@ -98,8 +102,13 @@ public class JschUtil {
             cpuId = line;
 
         }
-        result = String.valueOf(100.0 - Double.valueOf(cpuId));
 
+//        result = String.valueOf(100.0 - Double.valueOf(cpuId));
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+
+//        log.info("cpuId: "+cpuId);
+        result = decimalFormat.format(100.0 - Double.valueOf(cpuId));
+//        log.info("result: "+result);
         return result;
 
     }
@@ -126,12 +135,13 @@ public class JschUtil {
         }
         unit = memory.replaceAll("[^a-zA-Z]", "");
         Double remian = Double.valueOf(memory.replaceAll("[a-zA-Z]", ""));
+        DecimalFormat decimalFormatt = new DecimalFormat("#.00");
         if (unit.equals("M")) {
-            result = String.valueOf(remian / 1000);
+            result = decimalFormatt.format(remian / 1000);
         } else if (unit.equals("T")) {
-            result = String.valueOf(remian * 1000);
+            result = decimalFormatt.format(remian * 1000);
         } else if (unit.equals("G")) {
-            result = String.valueOf(remian);
+            result = decimalFormatt.format(remian);
         }
         return result;
 
@@ -189,9 +199,24 @@ public class JschUtil {
     public boolean getUrlIsLive(String url) throws Exception {
         // 创建一个RestTemplate实例
         RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = null;
+        try {
+            response = restTemplate.getForEntity(url, String.class);
+        }
 
+        catch (Exception e){
+            e.printStackTrace();
+//            log.info(e.getMessage());
+//            log.info(String.valueOf(e.getCause()));
+            if (e.getMessage().contains("PKIX path validation failed:")) {
+                log.error("PKIX path validation failed: " + e.getMessage());
+                return true;
+            } else {
+                return false;
+            }
+        }
         // 发送GET请求，并获取响应
-        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+
 
         // 检查请求是否成功
         if (response.getStatusCode().is2xxSuccessful()) {

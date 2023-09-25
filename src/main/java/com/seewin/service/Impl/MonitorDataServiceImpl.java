@@ -10,6 +10,7 @@ import com.seewin.mapper.MonitorDataMapper;
 import com.seewin.mapper.MonitorItemMapper;
 import com.seewin.mapper.MonitorTypeMapper;
 import com.seewin.service.MonitorDataService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class MonitorDataServiceImpl implements MonitorDataService {
     @Autowired
     private MonitorDataMapper monitorDataMapper;
@@ -33,7 +35,7 @@ public class MonitorDataServiceImpl implements MonitorDataService {
 
     @Override
     public void addMonitorData(MonitorData monitorData) {
-
+        log.info("添加监控数据: "+ monitorData);
         monitorDataMapper.insert(monitorData);
     }
 
@@ -50,7 +52,6 @@ public class MonitorDataServiceImpl implements MonitorDataService {
             QueryWrapper<Host> queryWrapper = new QueryWrapper<>();
             queryWrapper.like(!hostName.isEmpty(), "hostName", hostName);
             List<Host> hosts = hostMapper.selectList(queryWrapper);
-            System.out.println("hosts: " + hosts);
             if (hosts == null || hosts.isEmpty()) {
                 resultData.put("tableData", null);
                 resultData.put("total", 0);
@@ -64,6 +65,7 @@ public class MonitorDataServiceImpl implements MonitorDataService {
 //        获取前端传来的当前页和页码大小
         Integer currentPage = (Integer) queryData.get("currentPage");
         Integer pageSize = (Integer) queryData.get("pageSize");
+        log.info("监控数据分页查询getMonitorDataByQuery: [" + "hostName: " + hostName + " currentPage: " + currentPage + " pageSize: " + pageSize +" ]");
 //        根据分页、主机id查询监控项
         IPage<MonitorItem> page = new Page(currentPage,pageSize);
         LambdaQueryWrapper<MonitorItem> lambdaQueryWrapper1 = new LambdaQueryWrapper<>();
@@ -83,6 +85,9 @@ public class MonitorDataServiceImpl implements MonitorDataService {
             monitorDataLambdaQueryWrapper.orderByDesc(MonitorData::getCreateTime);
             monitorDataLambdaQueryWrapper.last("limit 1");
             MonitorData monitorData = monitorDataMapper.selectOne(monitorDataLambdaQueryWrapper);
+            if (monitorData == null){
+                return null;
+            }
 
 //            生成返回的监控数据
             MonitorDataResult monitorDataResult = new MonitorDataResult();
@@ -97,6 +102,8 @@ public class MonitorDataServiceImpl implements MonitorDataService {
             return monitorDataResult;
         }).collect(Collectors.toList());
         resultData.put("tableData",monitorDataResults);
+        log.info("监控数据分页查询条件: 【"+"hostName: "+hostName+", currentPage+: "+currentPage+", pageSize: "+pageSize+"】");
+        log.info("监控数据分页查询结果: "+resultData);
         return new Result<>(200,resultData,"查询成功！");
     }
 

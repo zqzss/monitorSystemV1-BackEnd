@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 public class TokenInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        System.out.println(request.getRequestURI());
+//        System.out.println(request.getRequestURI());
         if (request.getMethod().equals("OPTIONS")){
             return true;
         }
@@ -26,7 +26,7 @@ public class TokenInterceptor implements HandlerInterceptor {
         Result<String> result = new Result();
         result.setData(null);
         result.setCode(500);
-        log.info("token: "+ token);
+//        log.info("token: "+ token);
         if(token != null && !"".equals(token)){
             // 做一些验证逻辑判断，例如检查Token是否有效或过期
             try {

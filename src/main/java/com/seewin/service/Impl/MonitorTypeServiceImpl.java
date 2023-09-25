@@ -23,6 +23,7 @@ public class MonitorTypeServiceImpl implements MonitorTypeService {
         for(MonitorType monitorType:monitorTypes){
             monitorTypeData.add(monitorType.getName());
         }
+        log.info("获取所有监控类型名称: "+monitorTypeData);
         return new Result<>(200,monitorTypeData,"查询成功！");
     }
 }

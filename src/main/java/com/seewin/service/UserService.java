@@ -15,4 +15,6 @@ public interface UserService {
     Result getUserById(Integer id);
     Result updateUserById(User user);
     Result updatePwd(HashMap pwdMap);
+    Result getUser();
+    Result getUserName();
 }

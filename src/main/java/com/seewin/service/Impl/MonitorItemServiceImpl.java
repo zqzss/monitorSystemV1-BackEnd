@@ -51,6 +51,7 @@ public class MonitorItemServiceImpl implements MonitorItemService {
         monitorItem.setDetail((String) requestData.get("detail"));
 
         monitorItemMapper.insert(monitorItem);
+        log.info("新建监控项: " + monitorItem);
         return new Result<>(200,null,"新添监控项成功！");
     }
 
@@ -70,7 +71,7 @@ public class MonitorItemServiceImpl implements MonitorItemService {
         }
 
         LambdaQueryWrapper<MonitorItem> monitorItemLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        monitorItemLambdaQueryWrapper.in(MonitorItem::getHostId,host_ids);
+        monitorItemLambdaQueryWrapper.in(host_ids.size()!=0,MonitorItem::getHostId,host_ids);
 
         IPage<MonitorItem> page = new Page(currentPage,pageSize);
 
@@ -99,12 +100,15 @@ public class MonitorItemServiceImpl implements MonitorItemService {
             responseData.add(responseMonitorItem);
         }
         resultData.put("tableData",responseData);
+        log.info("监控项分页查询条件: 【"+"inputHostName: "+hostName+", currentPage+: "+currentPage+", pageSize: "+pageSize+"】");
         return new Result<>(200,resultData,"查询成功！");
     }
 
     @Override
     public Result deleteMonitorItemById(Integer id) {
+        MonitorItem monitorItem = monitorItemMapper.selectById(id);
         monitorItemMapper.deleteById(id);
+        log.info("删除监控项: "+monitorItem);
         return new Result<>(200,null,"删除成功");
     }
 
@@ -121,7 +125,7 @@ public class MonitorItemServiceImpl implements MonitorItemService {
         result.put("selectHost",host.getHostName());
         result.put("warnValue",monitorItem.getWarnValue());
         result.put("detail",monitorItem.getDetail());
-
+        log.info("根据monitorId获取监控项: "+result);
         return new Result<>(200,result,"查询成功！");
     }
 
@@ -148,7 +152,7 @@ public class MonitorItemServiceImpl implements MonitorItemService {
         monitorItem.setMonitorTypeId(monitorType.getId());
         monitorItem.setWarnValue(warnValue);
         monitorItem.setDetail((String) requestData.get("detail"));
-
+        log.info("修改监控项: "+monitorItem);
         monitorItemMapper.updateById(monitorItem);
         return new Result<>(200,null,"修改成功！");
     }

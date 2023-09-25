@@ -4,11 +4,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
-import com.seewin.entity.Host;
-import com.seewin.entity.MonitorAlarm;
-import com.seewin.entity.MonitorData;
-import com.seewin.entity.MonitorItem;
+import com.seewin.entity.*;
 import com.seewin.mapper.*;
 import com.seewin.service.EmailService;
 import com.seewin.service.MonitorDataService;
@@ -22,8 +20,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.ConnectException;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -45,17 +46,55 @@ class MonitorSystemV1ApplicationTests {
     private MonitorDataService monitorDataService;
     @Autowired
     private MonitorDataMapper monitorDataMapper;
+    @Autowired
+    NoticeTypeMapper noticeTypeMapper;
     @Test
-    public void testMD5(){
+    public void testTmp(){
+        int cpuCores = Runtime.getRuntime().availableProcessors();
+        System.out.println("CPU核心数：" + cpuCores);
+    }
+    @Test
+    public void cpuUsageFormat() throws Exception {
+        JschUtil jschUtil = new JschUtil("192.168.1.49","root","sykj@2023",22);
+        jschUtil.testConnect();
+        String cpuUsage = jschUtil.getCPUUsage();
+        DecimalFormat decimalFormat = new DecimalFormat("#.00");
+        String cpuUsageFormat = decimalFormat.format(Double.parseDouble(cpuUsage));
+        System.out.println(cpuUsage);
+        System.out.println(cpuUsageFormat);
+        String result = String.valueOf(100.0 - Double.valueOf(cpuUsageFormat));
+        System.out.println(result);
+    }
+
+    @Test
+    public void doubleFormat() {
+        double num = 3.1415926;
+        DecimalFormat df = new DecimalFormat("#.00");
+        String result = df.format(num);
+        System.out.println(result);
+    }
+
+    @Test
+    public void noticeType() {
+        List<Host> hosts = hostMapper.selectList(null);
+        log.info(hosts.toString());
+        List<NoticeType> noticeTypes = noticeTypeMapper.selectList(null);
+        log.info(noticeTypes.get(0).toString());
+    }
+
+    @Test
+    public void testMD5() {
         String admin = MD5Utils.inputPassToDBPass("admin", "sy");
         System.out.println(admin);
     }
+
     @Test
-    public void testMonitorAlarmRecord(){
-        List<MonitorAlarm> monitorAlarms = monitorAlarmMapper.selectMonitorAlarmByQuery(null, null, null, 10, 10,"12:11:11","13:14:11",null,null);
+    public void testMonitorAlarmRecord() {
+        List<MonitorAlarm> monitorAlarms = monitorAlarmMapper.selectMonitorAlarmByQuery(null, null, null, 10, 10, "12:11:11", "13:14:11", null, null);
         System.out.println(monitorAlarms.toString());
 
     }
+
     @Test
     void contextLoads() {
         List<MonitorItem> monitorItems = monitorItemMapper.selectList(null);
@@ -80,7 +119,7 @@ class MonitorSystemV1ApplicationTests {
             if (monitorTypeId == 1) {
                 Double warnValue = monitorItem.getWarnValue();
                 try {
-                    nowValue =Double.valueOf(jschUtil.getCPUUsage());
+                    nowValue = Double.valueOf(jschUtil.getCPUUsage());
                 } catch (Exception e) {
                     host.setEnable(0);
                     log.info("连接" + host.getIp() + "或命令执行失败！");
@@ -180,7 +219,7 @@ class MonitorSystemV1ApplicationTests {
                     monitorAlarmMapper.insert(monitorAlarm);
                 }
             } else if (monitorTypeId == 6) {
-               Double warnValue = monitorItem.getWarnValue();
+                Double warnValue = monitorItem.getWarnValue();
                 try {
                     nowDetail = jschUtil.getUrlIsLive(String.valueOf(monitorItem.getDetail())) ? "true" : "false";
                 } catch (Exception e) {
@@ -210,56 +249,61 @@ class MonitorSystemV1ApplicationTests {
             monitorDataService.addMonitorData(monitorData);
         }
     }
-        @Test
-        public void testSelectPage () {
-            IPage iPage = new Page(1, 3);
-            monitorItemMapper.selectPage(iPage, null);
-            System.out.println(iPage.getRecords());
-        }
-        @Test
-        public void restTemplate () {
-            // 创建一个RestTemplate实例
-            RestTemplate restTemplate = new RestTemplate();
-
-            // 发送GET请求，并获取响应
-            ResponseEntity<String> response = restTemplate.getForEntity("https://www.baidu.com", String.class);
-            System.out.println(response.getStatusCodeValue());
-
-            // 检查请求是否成功
-            if (response.getStatusCode().is2xxSuccessful()) {
-                System.out.println("访问成功");
-            } else {
-                System.out.println("访问失败");
-            }
-        }
-        @Test
-        public void sendEmail () {
-            String to = "448933144@qq.com";
-            String subject = "Test Email";
-            String text = "This is a test email.";
-
-            emailService.sendEmail(to, subject, text);
-        }
-        @Test
-        public void testMonitorItem () {
-            List<MonitorItem> monitorItems = monitorItemMapper.selectList(null);
-            for (MonitorItem monitorItem : monitorItems) {
-                System.out.println(monitorItem.toString());
-            }
-        }
-        @Test
-        public void test1 () {
-            LocalDateTime now = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            String formattedDateTime = now.format(formatter);
-
-        }
 
     @Test
-    public void testJSch(){
-        String host = "192.168.1.49";
+    public void testSelectPage() {
+        IPage iPage = new Page(1, 3);
+        monitorItemMapper.selectPage(iPage, null);
+        System.out.println(iPage.getRecords());
+    }
+
+    @Test
+    public void restTemplate() {
+        // 创建一个RestTemplate实例
+        RestTemplate restTemplate = new RestTemplate();
+
+        // 发送GET请求，并获取响应
+        ResponseEntity<String> response = restTemplate.getForEntity("https://www.baidu.com", String.class);
+        System.out.println(response.getStatusCodeValue());
+
+        // 检查请求是否成功
+        if (response.getStatusCode().is2xxSuccessful()) {
+            System.out.println("访问成功");
+        } else {
+            System.out.println("访问失败");
+        }
+    }
+
+    @Test
+    public void sendEmail() {
+        String to = "448933144@qq.com";
+        String subject = "Test Email";
+        String text = "This is a test email.";
+
+        emailService.sendEmail(to, subject, text);
+    }
+
+    @Test
+    public void testMonitorItem() {
+        List<MonitorItem> monitorItems = monitorItemMapper.selectList(null);
+        for (MonitorItem monitorItem : monitorItems) {
+            System.out.println(monitorItem.toString());
+        }
+    }
+
+    @Test
+    public void test1() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDateTime = now.format(formatter);
+
+    }
+
+    @Test
+    public void testJSch() {
+        String host = "192.168.1.129";
         String username = "root";
-        String password = "sykj@2023";
+        String password = "sykj@20231";
         int port = 22;
         String specifyPort = "22";
         try {
@@ -292,14 +336,21 @@ class MonitorSystemV1ApplicationTests {
             }
             System.out.println(result);
             if (result != null && !result.equals("")) {
-                System.out.println("yes");;
+                System.out.println("yes");
+                ;
             }
             // 关闭连接
             channel.disconnect();
             session.disconnect();
 
-        } catch (Exception e) {
+        } catch (ConnectException e) {
+            log.info("111");
+        } catch (JSchException e) {
             e.printStackTrace();
+            System.out.println(e.getCause());
+            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         System.out.println("no");
     }
