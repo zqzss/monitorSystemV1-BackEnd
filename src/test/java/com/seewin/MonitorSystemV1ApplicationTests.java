@@ -52,6 +52,8 @@ class MonitorSystemV1ApplicationTests {
     public void testTmp(){
         int cpuCores = Runtime.getRuntime().availableProcessors();
         System.out.println("CPU核心数：" + cpuCores);
+        boolean t = true;
+        System.out.println(String.valueOf(t));
     }
     @Test
     public void cpuUsageFormat() throws Exception {

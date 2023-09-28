@@ -1,5 +1,6 @@
 package com.seewin.service.Impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.seewin.entity.NoticeType;
 import com.seewin.entity.Result;
 import com.seewin.mapper.NoticeTypeMapper;
@@ -24,7 +25,9 @@ public class NoticeTypeServiceImpl implements NoticeTypeService {
 
     @Override
     public Result getNoticeTypeById(Integer id) {
-        NoticeType noticeType = noticeTypeMapper.selectById(id);
+        LambdaQueryWrapper<NoticeType> noticeTypeLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        noticeTypeLambdaQueryWrapper.eq(NoticeType::getId,id);
+        NoticeType noticeType = noticeTypeMapper.selectOne(noticeTypeLambdaQueryWrapper);
         log.info("通过noticeTypeId获取通知类型: "+noticeType);
         return new Result<>(200,noticeType,"查询成功！");
     }

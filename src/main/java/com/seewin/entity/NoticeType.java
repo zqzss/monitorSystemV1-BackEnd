@@ -16,6 +16,7 @@ public class NoticeType {
     @TableId(type = IdType.AUTO)
     private Integer id;
     private String name;
+    private int enable;
     @TableField("intervalMinute")
     private Integer intervalMinute;
 }

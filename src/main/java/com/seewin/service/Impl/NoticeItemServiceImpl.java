@@ -50,7 +50,6 @@ public class NoticeItemServiceImpl implements NoticeItemService {
         NoticeType noticeType = noticeTypeMapper.selectOne(noticeTypeLambdaQueryWrapper);
         if (intervalMinute != noticeType.getIntervalMinute()){
             noticeType.setIntervalMinute(intervalMinute);
-            noticeTypeMapper.updateById(noticeType);
         }
         Integer noticeTypeId = noticeType.getId();
         LambdaQueryWrapper<NoticeItem> noticeItemLambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -60,6 +59,28 @@ public class NoticeItemServiceImpl implements NoticeItemService {
         for (NoticeItem noticeItem: noticeItems){
             noticeItemUserIds.add(noticeItem.getUserId());
         }
+        Integer enable = null;
+//        判断通知类型是否可用,并更新数据
+        if(postData.get("enable") instanceof  Boolean){
+            boolean t = Boolean.valueOf(postData.get("enable").toString());
+            if (t){
+                enable = 1;
+            }
+            else {
+                enable = 0;
+            }
+        }
+        if(postData.get("enable") instanceof  String){
+            String t = String.valueOf(postData.get("enable").toString());
+            if ("true".equals(t)){
+                enable = 1;
+            }
+            else {
+                enable = 0;
+            }
+        }
+        noticeType.setEnable(enable);
+        noticeTypeMapper.updateById(noticeType);
 //        用前端上传的用户名查用户id
         List<Integer> userIds = new ArrayList<>();
         List<User> users = new ArrayList<>();
@@ -100,7 +121,7 @@ public class NoticeItemServiceImpl implements NoticeItemService {
         LambdaQueryWrapper<NoticeType> noticeTypeLambdaQueryWrapper = new LambdaQueryWrapper<>();
         noticeTypeLambdaQueryWrapper.eq(name!=null,NoticeType::getName,name);
         NoticeType noticeType = noticeTypeMapper.selectOne(noticeTypeLambdaQueryWrapper);
-        Integer noticeTypeId = noticeType.getId();
+        Integer noticeTypeId = null;
 //        用通知类型Id找监控项
         LambdaQueryWrapper<NoticeItem> noticeItemLambdaQueryWrapper = new LambdaQueryWrapper<>();
         noticeItemLambdaQueryWrapper.eq(noticeTypeId!=null,NoticeItem::getNoticeTypeId,noticeTypeId);
@@ -112,6 +133,12 @@ public class NoticeItemServiceImpl implements NoticeItemService {
             usernames.add(user.getUsername());
         }
         log.info("通过通知监控类型名称: "+name+" 查询用户名: "+usernames);
-        return new Result<>(200,usernames,"查询成功！");
+
+        HashMap resultData = new HashMap<>();
+        resultData.put("usernames",usernames);
+        Integer enable = noticeType.getEnable();
+        boolean resultEnable = enable == 1?true:false;
+        resultData.put("enable",resultEnable);
+        return new Result<>(200,resultData,"查询成功！");
     }
 }
