@@ -1,0 +1,45 @@
+spring:
+  datasource:
+    url: jdbc:mysql://192.168.1.146:3306/test1?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=utf8
+    username: root
+    password: sykj_2022
+    driver-class-name: com.mysql.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+  mvc:
+    encoding:
+      charset: UTF-8
+
+  # 发件邮箱
+  mail:
+    host: smtp.163.com
+    username: qq448933144@163.com
+    password: XMVFPJTOPPCJGGPV
+    default-encoding: UTF-8
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+# 外键级联删除
+    map-underscore-to-camel-case: true
+
+# 主机重连次数
+reConnectNumber: 1
+
+# 监控数据保存天数
+saveMonitorDataDay: 3
+
+cron:
+  # 获取监控数据的频率
+  getMonitorDataCron: "*/20 * * * * * "
+  # 删除监控数据的频率
+  deleteMonitorDataCron: "0 0 0 * * * "
+
+#mybatis-plus:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #打印SQL日志到控制台
+
+#logging:
+#  level:
+#    com:
+#      seewin:
+#        mapper: debug
