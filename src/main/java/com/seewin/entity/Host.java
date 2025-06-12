@@ -20,6 +20,7 @@ public class Host {
     private Integer port;
     @TableField("username")
     private String userName;
+//    @TableField(select = false)
     private String password;
     private String description;
     private String reason;

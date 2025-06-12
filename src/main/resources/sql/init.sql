@@ -31,7 +31,7 @@ CREATE TABLE test1.host
     `reConnectNumber` int(1)                                                 NULL DEFAULT 1,
     `deleted`         int(1)                                                 NULL DEFAULT 0,
     `version`         int(11)                                                NULL DEFAULT 0,
-    `reason`          varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL
+    `reason`          varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NULL
 );
 
 drop table if exists test1.monitorType;

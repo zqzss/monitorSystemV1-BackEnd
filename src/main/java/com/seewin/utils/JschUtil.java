@@ -32,11 +32,10 @@ public class JschUtil {
         JSch jsch = new JSch();
         session = jsch.getSession(username, host, port);
         session.setPassword(password);
-
+        //        设置超时时间
+//        session.setTimeout(5000);
         // 跳过公钥检查
         session.setConfig("StrictHostKeyChecking", "no");
-//        设置超时时间
-        session.setTimeout(3000);
         // 开启 SSH 连接
         session.connect();
     }
@@ -85,7 +84,7 @@ public class JschUtil {
 
 
         // 执行命令
-        String command = "top -n 1 -b | grep \"%Cpu\" | awk '{print $8}'";
+        String command = "top -n 1 -b | grep %Cpu | awk '{print $8}'";
         channel = (ChannelExec) session.openChannel("exec");
         channel.setCommand(command);
         channel.connect();
@@ -96,7 +95,7 @@ public class JschUtil {
         String line;
 //          cpuID表示cpu空闲
         String cpuId = null;
-        String result = null;
+        String result ;
         while ((line = reader.readLine()) != null) {
 //                String [] filed = line.split("\\s+");
             cpuId = line;
@@ -106,7 +105,7 @@ public class JschUtil {
 //        result = String.valueOf(100.0 - Double.valueOf(cpuId));
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
-//        log.info("cpuId: "+cpuId);
+        log.info("cpuId: "+cpuId);
         result = decimalFormat.format(100.0 - Double.valueOf(cpuId));
 //        log.info("result: "+result);
         return result;

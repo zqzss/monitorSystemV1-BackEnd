@@ -28,6 +28,7 @@ import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @SpringBootTest
@@ -48,6 +49,11 @@ class MonitorSystemV1ApplicationTests {
     private MonitorDataMapper monitorDataMapper;
     @Autowired
     NoticeTypeMapper noticeTypeMapper;
+    @Test
+    public void uuid(){
+        String uuid = UUID.randomUUID().toString();
+        System.out.println(uuid);
+    }
     @Test
     public void testTmp(){
         int cpuCores = Runtime.getRuntime().availableProcessors();
@@ -300,7 +306,50 @@ class MonitorSystemV1ApplicationTests {
         String formattedDateTime = now.format(formatter);
 
     }
+    @Test
+    public void testConnect(){
+        Host host = new Host();
+        String ip = "192.168.20.143";
+        String username = "root";
+        String password = "sykj@2024";
+        int port = 22;
+        JschUtil jSch = new JschUtil(ip,username,password,port);
+        try {
+            jSch.testConnect();
+            System.out.println("connect success!");
+        }
+        catch (JSchException e) {
+            e.printStackTrace();
+            String message = e.getMessage();
 
+            host.setEnable(0);
+            host.setReConnectNumber(0);
+            if (message.toLowerCase().contains("time")){
+                host.setReason("连接服务器失败，请检查！");
+            }
+            else if (message.toLowerCase().contains("refused")){
+                host.setReason("ssh端口拒绝连接！");
+            }
+            else if (message.toLowerCase().contains("auth")){
+                host.setReason("用户或密码错误！");
+            }
+            else {
+                log.error("！主机："+" ip:"+ip + "发送未知异常");
+                host.setReason("！主机："+" ip:"+ip + "发送未知异常");
+            }
+
+
+        } catch (Exception e) {
+
+            host.setEnable(0);
+            host.setReConnectNumber(0);
+            log.error("！主机："+" ip:"+ip + "发送未知异常");
+            host.setReason("！主机："+" ip:"+ip + "发送未知异常");
+            e.printStackTrace();
+
+        }
+        System.out.println("123");
+    }
     @Test
     public void testJSch() {
         String host = "192.168.1.129";

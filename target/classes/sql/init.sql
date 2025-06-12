@@ -31,7 +31,7 @@ CREATE TABLE test1.host
     `reConnectNumber` int(1)                                                 NULL DEFAULT 1,
     `deleted`         int(1)                                                 NULL DEFAULT 0,
     `version`         int(11)                                                NULL DEFAULT 0,
-    `reason`          varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL
+    `reason`          varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NULL
 );
 
 drop table if exists test1.monitorType;
@@ -75,8 +75,8 @@ CREATE TABLE test1.monitorData
     data           varchar(32) NULL
 );
 
-drop table if exists test1.alarmRecord;
-CREATE TABLE test1.alarmRecord
+drop table if exists test1.monitorAlarm;
+CREATE TABLE test1.monitorAlarm
 (
     id             int(20)     NOT NULL AUTO_INCREMENT PRIMARY KEY,
     host_id        int(20)     NOT NULL,
@@ -100,8 +100,8 @@ CREATE TABLE test1.noticeType
 );
 insert into test1.noticeType(id, name, intervalMinute)
 values (1, '邮箱通知', 10);
-drop table if exists test1.noticeConfig;
-CREATE TABLE test1.noticeConfig
+drop table if exists test1.noticeItem;
+CREATE TABLE test1.noticeItem
 (
     id             int(20)      NOT NULL AUTO_INCREMENT PRIMARY KEY,
     noticeType_id  int(20)      NOT NULL,

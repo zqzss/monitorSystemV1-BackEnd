@@ -25,7 +25,7 @@ public class ThreadConfig {
         //线程的名称前缀
         executor.setThreadNamePrefix("Executor-");
         //线程活跃时间（秒）
-        //executor.setKeepAliveSeconds(60);
+        executor.setKeepAliveSeconds(60);
         //等待所有任务结束后再关闭线程池
         executor.setWaitForTasksToCompleteOnShutdown(true);
         //设置拒绝策略

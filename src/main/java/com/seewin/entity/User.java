@@ -16,7 +16,7 @@ public class User {
     private String username;
     private String fullname;
     private Integer age;
-
+    @TableField(select = false)
     private String password;
     private String tel;
     private String email;

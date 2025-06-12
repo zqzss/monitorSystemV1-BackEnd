@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 @Slf4j
 @Service
+@EnableAsync
 public class GetMonitorDataRunable{
     @Value("${reConnectNumber}")
     private Integer reConnectNumber;
@@ -69,6 +71,7 @@ public class GetMonitorDataRunable{
         JschUtil jschUtil = new JschUtil(host.getIp(), host.getUserName(), host.getPassword(), host.getPort());
         try {
             jschUtil.testConnect();
+//            更新连接失败原因和剩余重试次数
             if (!"".equals(host.getReason()) || host.getReConnectNumber() != reConnectNumber) {
                 host.setReason("");
                 host.setReConnectNumber(reConnectNumber);
@@ -97,6 +100,7 @@ public class GetMonitorDataRunable{
                 host.setReason("！主机：" + hostName + " ip:" + ip + "发送未知异常");
             }
             hostMapper.updateById(host);
+            log.error("主机连接失败：" + host.toString());
             return;
         } catch (Exception e) {
             if (host.getReConnectNumber() > 0) {
@@ -112,7 +116,7 @@ public class GetMonitorDataRunable{
             e.printStackTrace();
             return;
         }
-
+//        cpu使用率
         if (monitorTypeId == 1) {
             Double warnValue = monitorItem.getWarnValue();
             try {
@@ -174,7 +178,9 @@ public class GetMonitorDataRunable{
 
             }
 
-        } else if (monitorTypeId == 2) {
+        }
+//        内存
+        else if (monitorTypeId == 2) {
             Double warnValue = monitorItem.getWarnValue();
             try {
                 nowValue = Double.valueOf(jschUtil.getMemoryRemain());

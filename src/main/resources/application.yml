@@ -27,7 +27,7 @@ reConnectNumber: 1
 
 cron:
   # 获取监控数据的频率
-  getMonitorDataCron: "*/20 * * * * * "
+  getMonitorDataCron: "*/30 * * * * * "
   # 删除监控数据的频率
   deleteMonitorDataCron: "0 0 0 * * * "
 

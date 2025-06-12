@@ -52,11 +52,10 @@ public class HostServiceImpl implements HostService {
         JschUtil jschUtil =new JschUtil(host.getIp(), host.getUserName(), host.getPassword(), host.getPort());
         try {
             jschUtil.testConnect();
+            host.setEnable(1);
             if (!"".equals(host.getReason()) || host.getReConnectNumber() != reConnectNumber) {
                 host.setReason("");
-                host.setEnable(1);
                 host.setReConnectNumber(reConnectNumber);
-
             }
 
         } catch (JSchException e) {
@@ -119,7 +118,10 @@ public class HostServiceImpl implements HostService {
         host.setEnable(1);
         String hostName = host.getHostName();
         String ip = host.getIp();
-        JschUtil jschUtil =new JschUtil(host.getIp(), host.getUserName(), host.getPassword(), host.getPort());
+        String password = host.getPassword();
+        String username = host.getUserName();
+        int port = host.getPort();
+        JschUtil jschUtil =new JschUtil(ip, username, password, port);
         try {
             jschUtil.testConnect();
             if (!"".equals(host.getReason()) || host.getReConnectNumber() != reConnectNumber) {
